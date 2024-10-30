@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections;
+using System;
 
 namespace ConsoleApp10
 {
-    public class Student
+    public class Student : IComparable
     {
         public string Name { get; set; }
         public string Surname { get; set; }
@@ -27,15 +26,22 @@ namespace ConsoleApp10
             Console.WriteLine($"Имя: {Name}, Фамилия: {Surname}, Возраст: {Age}, Телефон: {Phone}, Средний балл: {Average}, Номер группы: {NumberOfGroup}");
         }
 
-        // Классы для сортировки
-        public class SortByName : IComparer
+        // Реализация интерфейса IComparable
+        public int CompareTo(object obj)
         {
-            public int Compare(object x, object y)
+            if (obj == null) return 1;
+            Student otherStudent = obj as Student;
+            if (otherStudent != null)
             {
-                return string.Compare(((Student)x).Name, ((Student)y).Name);
+                return string.Compare(this.Name, otherStudent.Name);
+            }
+            else
+            {
+                throw new ArgumentException("Object is not a Student");
             }
         }
 
+        // Классы для сортировки по фамилии и возрасту
         public class SortBySurname : IComparer
         {
             public int Compare(object x, object y)
