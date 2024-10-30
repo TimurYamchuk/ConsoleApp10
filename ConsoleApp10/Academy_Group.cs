@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 
 namespace ConsoleApp10
 {
-    public class AcademyGroup
+    public class AcademyGroup : ICloneable
     {
         private ArrayList students = new ArrayList();
 
@@ -65,7 +65,7 @@ namespace ConsoleApp10
             {
                 case 1:
                     Console.WriteLine("Сортировка по имени:");
-                    students.Sort(new Student.SortByName());
+                    students.Sort(); // Используем IComparable
                     break;
                 case 2:
                     Console.WriteLine("\nСортировка по фамилии:");
@@ -145,6 +145,17 @@ namespace ConsoleApp10
             {
                 Console.WriteLine("Такой студент не найден.");
             }
+        }
+
+        // Реализация интерфейса ICloneable
+        public object Clone()
+        {
+            AcademyGroup clonedGroup = new AcademyGroup();
+            foreach (Student student in students)
+            {
+                clonedGroup.Add(new Student(student.Name, student.Surname, student.Age, student.Phone, student.Average, student.NumberOfGroup));
+            }
+            return clonedGroup;
         }
     }
 }
