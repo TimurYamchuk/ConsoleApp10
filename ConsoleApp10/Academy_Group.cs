@@ -1,10 +1,57 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ConsoleApp10
 {
-    public class AcademyGroup : ICloneable
+    public class Student : IComparable<Student>
+    {
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public int Age { get; set; }
+        public string Phone { get; set; }
+        public double Average { get; set; }
+        public int NumberOfGroup { get; set; }
+
+        public Student(string name, string surname, int age, string phone, double average, int numberOfGroup)
+        {
+            Name = name;
+            Surname = surname;
+            Age = age;
+            Phone = phone;
+            Average = average;
+            NumberOfGroup = numberOfGroup;
+        }
+
+        public void Print()
+        {
+            Console.WriteLine($"Имя: {Name}, Фамилия: {Surname}, Возраст: {Age}, Телефон: {Phone}, Средний балл: {Average}, Номер группы: {NumberOfGroup}");
+        }
+
+        public int CompareTo(Student other)
+        {
+            return this.Name.CompareTo(other.Name);
+        }
+
+        public class SortBySurname : IComparer<Student>
+        {
+            public int Compare(Student x, Student y)
+            {
+                return x.Surname.CompareTo(y.Surname);
+            }
+        }
+
+        public class SortByAge : IComparer<Student>
+        {
+            public int Compare(Student x, Student y)
+            {
+                return x.Age.CompareTo(y.Age);
+            }
+        }
+    }
+
+    public class AcademyGroup : ICloneable, IEnumerable<Student>
     {
         private ArrayList students = new ArrayList();
 
@@ -65,14 +112,14 @@ namespace ConsoleApp10
             {
                 case 1:
                     Console.WriteLine("Сортировка по имени:");
-                    students.Sort(); // Используем IComparable
+                    students.Sort();
                     break;
                 case 2:
-                    Console.WriteLine("\nСортировка по фамилии:");
+                    Console.WriteLine("Сортировка по фамилии:");
                     students.Sort(new Student.SortBySurname());
                     break;
                 case 3:
-                    Console.WriteLine("\nСортировка по возрасту:");
+                    Console.WriteLine("Сортировка по возрасту:");
                     students.Sort(new Student.SortByAge());
                     break;
                 default:
@@ -88,7 +135,13 @@ namespace ConsoleApp10
             {
                 foreach (Student student in students)
                 {
-                    file.WriteLine($"Имя - {student.Name}\nФамилия - {student.Surname}\nТелефон - {student.Phone}\nВозраст - {student.Age}\nСредний балл - {student.Average}\nГруппа - {student.NumberOfGroup}\n");
+                    file.WriteLine($"Имя - {student.Name}");
+                    file.WriteLine($"Фамилия - {student.Surname}");
+                    file.WriteLine($"Телефон - {student.Phone}");
+                    file.WriteLine($"Возраст - {student.Age}");
+                    file.WriteLine($"Средний балл - {student.Average}");
+                    file.WriteLine($"Группа - {student.NumberOfGroup}");
+                    file.WriteLine();
                 }
             }
             Console.WriteLine("Данные о студентах сохранены в файл.");
@@ -117,7 +170,7 @@ namespace ConsoleApp10
 
         public void Search(int criterionNumber)
         {
-            Console.WriteLine("Введите значение для поиска:");
+            Console.Write("Введите значение для поиска: ");
             string searchValue = Console.ReadLine();
             bool found = false;
 
@@ -147,7 +200,6 @@ namespace ConsoleApp10
             }
         }
 
-        // Реализация интерфейса ICloneable
         public object Clone()
         {
             AcademyGroup clonedGroup = new AcademyGroup();
@@ -156,6 +208,50 @@ namespace ConsoleApp10
                 clonedGroup.Add(new Student(student.Name, student.Surname, student.Age, student.Phone, student.Average, student.NumberOfGroup));
             }
             return clonedGroup;
+        }
+
+        public IEnumerator<Student> GetEnumerator()
+        {
+            foreach (Student student in students)
+            {
+                yield return student;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Создание группы и добавление студентов
+            AcademyGroup originalGroup = new AcademyGroup();
+            originalGroup.Add(new Student("Иван", "Иванов", 20, "123-456-7890", 4.2, 101));
+            originalGroup.Add(new Student("Мария", "Петрова", 22, "098-765-4321", 3.8, 101));
+            originalGroup.Add(new Student("Сергей", "Сидоров", 21, "111-222-3333", 4.5, 101));
+
+            Console.WriteLine("Оригинальная группа студентов:");
+            originalGroup.Print();
+
+            // Клонирование группы
+            AcademyGroup clonedGroup = (AcademyGroup)originalGroup.Clone();
+
+            Console.WriteLine("\nКлонированная группа студентов:");
+            clonedGroup.Print();
+
+            // Проверка независимости клонированной группы
+            Console.WriteLine("\nДобавление нового студента в клонированную группу.");
+            clonedGroup.Add(new Student("Алексей", "Кузнецов", 23, "444-555-6666", 3.9, 102));
+
+            Console.WriteLine("\nОригинальная группа после добавления студента в клонированную группу:");
+            originalGroup.Print();
+
+            Console.WriteLine("\nКлонированная группа после добавления нового студента:");
+            clonedGroup.Print();
         }
     }
 }
